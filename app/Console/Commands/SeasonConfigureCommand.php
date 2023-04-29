@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
-use App\Support\DripEmailer;
 use Illuminate\Console\Command;
 
 class SeasonConfigureCommand extends Command
@@ -14,9 +12,11 @@ class SeasonConfigureCommand extends Command
  
     public function handle(): void
     {
-        $this->info('Hello, Motherfucker');
+        $year = $this->ask('Ano: ');
+        $valueRound = $this->ask('Valor rodada: ');
+        $valueSubscription = $this->ask('Valor inscrição: ');
+        $numberExemptPlayersRound = $this->ask('Número de jogadores isentos por rodada: ');
 
-
-        (new \App\Services\SeasonService)->configure();
+        (new \App\Services\SeasonService)->handle($year, $valueRound, $valueSubscription, $numberExemptPlayersRound);
     }
 }
