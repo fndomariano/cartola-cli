@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\SeasonConfigureCommand::class,
         Commands\RegisterRoundResultCommand::class,
+        Commands\SeasonUpdateSubscriptionsCommand::class,
     ];
 
     /**

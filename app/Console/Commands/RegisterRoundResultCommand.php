@@ -8,7 +8,7 @@ class RegisterRoundResultCommand extends Command
 {    
     protected $signature = 'round-result:register';
  
-    protected $description = 'Register Round Result';
+    protected $description = 'Insert teams scores by round';
  
     public function handle(): void
     {
