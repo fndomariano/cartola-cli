@@ -8,7 +8,7 @@ class SeasonUpdateSubscriptionsCommand extends Command
 {    
     protected $signature = 'season:update-subscriptions';
  
-    protected $description = '';
+    protected $description = 'Add/Remove teams';
  
     public function handle(): void
     {
