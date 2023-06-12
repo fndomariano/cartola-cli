@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\CartolaAPIService;
+use App\Services\RoundResultService;
 
 class RegisterRoundResultCommand extends Command
 {    
@@ -10,10 +12,15 @@ class RegisterRoundResultCommand extends Command
  
     protected $description = 'Insert teams scores by round';
  
-    public function handle(): void
+    public function handle(CartolaAPIService $cartolaApiService, RoundResultService $service)
     {
-        $round = $this->ask('Rodada: ');
+        $leagueSlug = $this->ask('Slug da liga', 'cartolas-da-ruindade');
+        $round = $this->ask('Rodada');
 
-        (new \App\Services\RoundResultService)->handle($round);
+        $service
+            ->setCartolaApiService($cartolaApiService)
+            ->register($round, $leagueSlug);
+
+        return RegisterRoundResultCommand::SUCCESS;
     }
 }

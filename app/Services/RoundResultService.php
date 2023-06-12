@@ -9,13 +9,15 @@ use App\Models\Team;
 
 class RoundResultService 
 {
-    public function handle($round) : void
+    private CartolaAPIService $cartolaApiService;
+
+    public function register($round, $leagueSlug) : void
     {
         DB::beginTransaction();
 
         try {
         
-            $data = $this->getLeagueData();
+            $data = $this->cartolaApiService->getLeagueData($leagueSlug);
 
             foreach ($data['times'] as $result) {
                 
@@ -39,7 +41,7 @@ class RoundResultService
         }
     }
 
-    public function removeRoundResult($leagueSlug, $yearSeason, $round) : void
+    public function remove($leagueSlug, $yearSeason, $round) : void
     {
         $roundResults = RoundResult::query()
             ->select('round_result.id')
@@ -70,11 +72,10 @@ class RoundResultService
 
     }
 
-    private function getLeagueData() 
-    {        
-        $response =  Http::withHeaders(['X-GLB-Token' => env('GBLID')])
-            ->get('https://api.cartola.globo.com/auth/liga/cartolas-da-ruindade');
-
-        return $response;
+    public function setCartolaApiService(CartolaApiService $cartolaApiService) : self
+    {
+        $this->cartolaApiService = $cartolaApiService;
+        return $this;
     }
+    
 }
