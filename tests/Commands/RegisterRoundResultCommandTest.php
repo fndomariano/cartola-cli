@@ -47,7 +47,9 @@ class RegisterRoundResultCommandTest extends TestCase
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
         $this->app->instance(RoundResultService::class, $serviceMock);
             
-        $this->artisan('round-result:register');
+        $options = sprintf('--round=%s --league=%s', $round, $leagueSlug);
+        $this->artisan('round-result:register ' . $options);
             
     }
+    
 }

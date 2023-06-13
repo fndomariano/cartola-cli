@@ -37,7 +37,7 @@ class RoundResultService
             
             DB::rollBack();
 
-            dd($e->getMessage());
+            throw $e;
         }
     }
 
@@ -53,6 +53,7 @@ class RoundResultService
             ->where('round_result.round', '=', $round)
             ->get();
 
+
         DB::beginTransaction();
 
         try {
@@ -67,7 +68,7 @@ class RoundResultService
             
             DB::rollBack();
 
-            dd($e->getMessage());
+            throw $e;
         }
 
     }
