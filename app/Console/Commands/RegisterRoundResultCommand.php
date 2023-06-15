@@ -13,17 +13,13 @@ class RegisterRoundResultCommand extends Command
     protected $description = 'Insert teams scores by round';
  
     public function handle(CartolaAPIService $cartolaApiService, RoundResultService $service) : int
-    {
-        $leagueSlug = $this->option('league');
-        $round = $this->option('round');
-
+    {                        
         try {
+            
+            $leagueSlug = $this->option('league');
+            $round = $this->option('round');
 
-            if ($leagueSlug == '' || $leagueSlug === null)
-                throw new \InvalidArgumentException("The option --league is required");
-
-            if ($round == '' || $round === null)
-                throw new \InvalidArgumentException("The option --round is required");
+            $this->validateOptions($leagueSlug, $round);
 
             $service
                 ->setCartolaApiService($cartolaApiService)
@@ -37,6 +33,14 @@ class RegisterRoundResultCommand extends Command
 
             return RegisterRoundResultCommand::INVALID;            
         }
+    }
 
+    private function validateOptions($leagueSlug, $round) : void
+    {
+        if ($leagueSlug == '' || $leagueSlug === null)
+            throw new \InvalidArgumentException("The option --league is required");
+
+        if ($round == '' || $round === null)
+            throw new \InvalidArgumentException("The option --round is required");
     }
 }

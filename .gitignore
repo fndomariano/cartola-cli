@@ -5,3 +5,6 @@ Homestead.yaml
 .env
 .phpunit.result.cache
 composer.lock
+/coverage
+.phpunit.result.cache/
+.phpunit.cache/

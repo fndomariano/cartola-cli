@@ -2,32 +2,24 @@
 
 namespace Tests\Commands;
 
-use App\Console\Commands\RegisterRoundResultCommand;
+use App\Console\Commands\RemoveRoundResultCommand;
 use App\Models\RoundResult;
 use App\Services\RoundResultService;
 use App\Services\CartolaAPIService;
 use Mockery;
 use Tests\TestCase;
 
-class RegisterRoundResultCommandTest extends TestCase
-{     
-    private const COMMAND_NAME = 'round-result:register';
+class RemoveRoundResultCommandTest extends TestCase
+{
+    private const COMMAND_NAME = 'round-result:remove';
     private const LEAGUE_OPTION = '--league';
+    private const YEAR_SEASON_OPTION = '--yearSeason';
     private const ROUND_OPTION = '--round';
 
-    public function setUp() : void
-    {
-        parent::setUp();
-    }
-
-    public function tearDown() : void
-    {
-        parent::tearDown();
-    }
-
-    public function test_that_command_must_register_round_result() : void
+    public function test_that_command_must_remove_round_result() : void
     {
         $round = 10;
+        $yearSeason = 2023;
         $leagueSlug = 'cartolas-da-ruindade';
         
         $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
@@ -41,25 +33,25 @@ class RegisterRoundResultCommandTest extends TestCase
             ->andReturnSelf();
         
         $resultService
-            ->shouldReceive('register')
-            ->with($round, $leagueSlug)
+            ->shouldReceive('remove')
+            ->with($leagueSlug, $yearSeason, $round)
             ->once()
             ->andReturnNull();            
         
-            
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
         $this->app->instance(RoundResultService::class, $resultService);
             
         $command = sprintf(
-            "%s %s=%s %s=%s", 
+            "%s %s=%s %s=%s %s=%s", 
             self::COMMAND_NAME, 
             self::LEAGUE_OPTION, $leagueSlug, 
+            self::YEAR_SEASON_OPTION, $yearSeason, 
             self::ROUND_OPTION, $round
         );
 
         $result = $this->artisan($command);
         
-        $this->assertTrue($result == RegisterRoundResultCommand::SUCCESS);       
+        $this->assertTrue($result == RemoveRoundResultCommand::SUCCESS);       
     }
 
     public function test_that_command_must_validate_league_option_when_null()
@@ -67,7 +59,7 @@ class RegisterRoundResultCommandTest extends TestCase
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, null);
         $result = $this->artisan($command);
         
-        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_league_option_when_empty()
@@ -75,23 +67,50 @@ class RegisterRoundResultCommandTest extends TestCase
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, "");
         $result = $this->artisan($command);
         
-        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+    }
+
+    public function test_that_command_must_validate_year_season_option_when_null()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::YEAR_SEASON_OPTION, null);
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+    }
+
+    public function test_that_command_must_validate_year_season_option_when_empty()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::YEAR_SEASON_OPTION, "");
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_round_option_when_null()
     {
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, null);
+        $command = sprintf(
+            "%s %s=%s %s=%s", 
+            self::COMMAND_NAME, 
+            self::YEAR_SEASON_OPTION, 2012, 
+            self::ROUND_OPTION, null
+        );
+
         $result = $this->artisan($command);
         
-        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_round_option_when_empty()
     {
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, "");
+        $command = sprintf(
+            "%s %s=%s %s=%s", 
+            self::COMMAND_NAME, 
+            self::YEAR_SEASON_OPTION, 2012, 
+            self::ROUND_OPTION, ""
+        );
+        
         $result = $this->artisan($command);
         
-        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
     }
-    
 }
