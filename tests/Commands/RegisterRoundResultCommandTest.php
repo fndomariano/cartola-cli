@@ -11,7 +11,11 @@ use Mockery\MockInterface;
 use Tests\TestCase;
 
 class RegisterRoundResultCommandTest extends TestCase
-{ 
+{     
+    private const COMMAND_NAME = 'round-result:register';
+    private const LEAGUE_OPTION = '--league';
+    private const ROUND_OPTION = '--round';
+
     public function setUp() : void
     {
         parent::setUp();
@@ -47,9 +51,48 @@ class RegisterRoundResultCommandTest extends TestCase
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
         $this->app->instance(RoundResultService::class, $serviceMock);
             
-        $options = sprintf('--round=%s --league=%s', $round, $leagueSlug);
-        $this->artisan('round-result:register ' . $options);
-            
+        $command = sprintf(
+            "%s %s=%s %s=%s", 
+            self::COMMAND_NAME, 
+            self::LEAGUE_OPTION, $leagueSlug, 
+            self::ROUND_OPTION, $round
+        );
+
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RegisterRoundResultCommand::SUCCESS);       
+    }
+
+    public function test_that_command_must_validate_league_option_when_null()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, null);
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+    }
+
+    public function test_that_command_must_validate_league_option_when_empty()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, "");
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+    }
+
+    public function test_that_command_must_validate_round_option_when_null()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, null);
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
+    }
+
+    public function test_that_command_must_validate_round_option_when_empty()
+    {
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, "");
+        $result = $this->artisan($command);
+        
+        $this->assertTrue($result == RegisterRoundResultCommand::INVALID);
     }
     
 }
