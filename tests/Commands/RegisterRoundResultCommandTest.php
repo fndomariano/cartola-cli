@@ -32,15 +32,15 @@ class RegisterRoundResultCommandTest extends TestCase
         
         $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
         
-        $resultService = Mockery::mock(RoundResultService::class);  
+        $roundResultService = Mockery::mock(RoundResultService::class);  
 
-        $resultService
+        $roundResultService
             ->shouldReceive('setCartolaApiService')
             ->with($cartolaApiService)
             ->once()
             ->andReturnSelf();
         
-        $resultService
+        $roundResultService
             ->shouldReceive('register')
             ->with($round, $leagueSlug)
             ->once()
@@ -48,7 +48,7 @@ class RegisterRoundResultCommandTest extends TestCase
         
             
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
-        $this->app->instance(RoundResultService::class, $resultService);
+        $this->app->instance(RoundResultService::class, $roundResultService);
             
         $command = sprintf(
             "%s %s=%s %s=%s", 
