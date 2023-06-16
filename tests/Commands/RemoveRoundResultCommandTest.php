@@ -16,6 +16,10 @@ class RemoveRoundResultCommandTest extends TestCase
     private const YEAR_SEASON_OPTION = '--yearSeason';
     private const ROUND_OPTION = '--round';
 
+    private const EXPECT_LEAGUE_OPTION_OUTPUT = 'The option --league is required';
+    private const EXPECT_YEAR_SEASON_OPTION_OUTPUT = 'The option --yearSeason is required';
+    private const EXPECT_ROUND_OPTION_OUTPUT = 'The option --round is required';
+
     public function test_that_command_must_remove_round_result() : void
     {
         $round = 10;
@@ -49,41 +53,43 @@ class RemoveRoundResultCommandTest extends TestCase
             self::ROUND_OPTION, $round
         );
 
-        $result = $this->artisan($command);
-        
-        $this->assertTrue($result == RemoveRoundResultCommand::SUCCESS);       
+        $this->artisan($command)->assertExitCode(RemoveRoundResultCommand::SUCCESS);
     }
 
     public function test_that_command_must_validate_league_option_when_null()
     {
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, null);
-        $result = $this->artisan($command);
         
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_LEAGUE_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_league_option_when_empty()
     {
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, "");
-        $result = $this->artisan($command);
         
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_LEAGUE_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_year_season_option_when_null()
     {
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::YEAR_SEASON_OPTION, null);
-        $result = $this->artisan($command);
         
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_YEAR_SEASON_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_year_season_option_when_empty()
     {
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::YEAR_SEASON_OPTION, "");
-        $result = $this->artisan($command);
         
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_YEAR_SEASON_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_round_option_when_null()
@@ -95,9 +101,9 @@ class RemoveRoundResultCommandTest extends TestCase
             self::ROUND_OPTION, null
         );
 
-        $result = $this->artisan($command);
-        
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_ROUND_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);
     }
 
     public function test_that_command_must_validate_round_option_when_empty()
@@ -108,9 +114,9 @@ class RemoveRoundResultCommandTest extends TestCase
             self::YEAR_SEASON_OPTION, 2012, 
             self::ROUND_OPTION, ""
         );
-        
-        $result = $this->artisan($command);
-        
-        $this->assertTrue($result == RemoveRoundResultCommand::INVALID);
+            
+        $this->artisan($command)
+            ->expectsOutput(self::EXPECT_ROUND_OPTION_OUTPUT)
+            ->assertExitCode(RemoveRoundResultCommand::INVALID);        
     }
 }
