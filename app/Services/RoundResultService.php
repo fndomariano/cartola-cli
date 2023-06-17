@@ -18,11 +18,11 @@ class RoundResultService
         try {
         
             $data = $this->cartolaApiService->getLeagueData($leagueSlug);
-
+            
             foreach ($data['times'] as $result) {
                 
                 $team = Team::where('cartola_id', '=', $result['time_id'])->firstOrFail();
-
+                
                 $roundResult = new RoundResult;
                 $roundResult->round = $round;
                 $roundResult->score = $result['pontos']['rodada'];
@@ -36,7 +36,7 @@ class RoundResultService
         } catch(\Exception $e) {
             
             DB::rollBack();
-
+            
             throw $e;
         }
     }

@@ -27,8 +27,7 @@ class RoundResultServiceTest extends TestCase
 
     public function test_must_register_round_result() : void
     {
-        $totalTeams = 5;
-        $teams = Team::factory()->count($totalTeams)->create();
+        $teams = Team::factory()->count(5)->create();
 
         $round = 2;
         $leagueSlug = 'cartolas-da-ruindade';
@@ -50,6 +49,51 @@ class RoundResultServiceTest extends TestCase
             
         $this->assertDatabaseHas('round_result', ['round' => $round]);        
     }
+
+    public function test_must_throw_not_found_exception() : void
+    {
+        $teams = Team::factory()->count(3)->make();
+        $round = 2;
+        $leagueSlug = 'cartolas-da-ruindade';
+
+        $cartolaApiService = Mockery::mock(CartolaAPIService::class);  
+
+        $cartolaApiService
+            ->shouldReceive('getLeagueData')
+            ->with($leagueSlug)
+            ->once()
+            ->andReturn($this->getCartolaLeagueResponse($teams));
+
+        $this->app->instance(CartolaAPIService::class, $cartolaApiService);
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+
+        $roundResultService = new RoundResultService();
+        $roundResultService
+            ->setCartolaApiService($cartolaApiService)
+            ->register($round, $leagueSlug);
+    }
+
+    public function test_must_remove_round_results() : void
+    {
+        $round = 2;
+        $leagueSlug = 'cartolas-da-ruindade';
+        $teams = Team::factory()->count(5)->create();
+        
+        foreach ($teams as $team) {
+            RoundResult::factory([
+                'team_id' => $team->id
+            ])->create();
+        }
+
+        $roundResultService = new RoundResultService();
+        $roundResultService
+            ->setCartolaApiService($cartolaApiService)
+            ->remove($round, $leagueSlug);
+            
+        $this->assertDatabaseHas('round_result', ['round' => $round]);
+    }
+
 
     public function getCartolaLeagueResponse($teams) 
     {
