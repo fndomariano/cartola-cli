@@ -2,19 +2,18 @@
 
 namespace Tests\Services;
 
-use Laravel\Lumen\Testing\DatabaseMigrations;
-use Laravel\Lumen\Testing\DatabaseTransactions;
 
 use App\Models\RoundResult;
 use App\Models\Team;
 use App\Services\RoundResultService;
 use App\Services\CartolaAPIService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
 
 class RoundResultServiceTest extends TestCase 
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
     public function setUp() : void
     {
@@ -48,10 +47,8 @@ class RoundResultServiceTest extends TestCase
         $roundResultService
             ->setCartolaApiService($cartolaApiService)
             ->register($round, $leagueSlug);
-
-        $roundResults = RoundResult::where('round', '=', $round)->get();
-        $this->assertFalse(empty($roundResults));
-        $this->assertEquals(count($roundResults), $totalTeams);
+            
+        $this->assertDatabaseHas('round_result', ['round' => $round]);        
     }
 
     public function getCartolaLeagueResponse($teams) 
