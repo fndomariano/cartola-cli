@@ -2,20 +2,21 @@
 
 namespace Database\Factories;
 
-use App\Models\RoundResult;
+use App\Models\League;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RoundResult>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\League>
  */
-class RoundResultFactory extends Factory
+class LeagueFactory extends Factory
 {
+
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = RoundResult::class;
+    protected $model = League::class;
 
     /**
      * Define the model's default state.
@@ -26,10 +27,9 @@ class RoundResultFactory extends Factory
     {
         return [
             'id' => $this->faker->uuid,
-            'round' => 5,
-            'score' => $faker->randomFloat(2),
-            'ranking' => $faker->randomDigit(),
-            'team_id' => $this->faker->uuid,
+            'name' => 'Cartolas da Ruindade',
+            'slug' => 'cartolas-da-ruindade',
+            'cartola_id' => 9999
         ];
     }
 }

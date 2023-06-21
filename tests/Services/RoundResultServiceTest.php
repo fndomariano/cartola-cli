@@ -7,6 +7,7 @@ use App\Models\RoundResult;
 use App\Models\Team;
 use App\Services\RoundResultService;
 use App\Services\CartolaAPIService;
+use Tests\CartolaTestFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -38,7 +39,7 @@ class RoundResultServiceTest extends TestCase
             ->shouldReceive('getLeagueData')
             ->with($leagueSlug)
             ->once()
-            ->andReturn($this->getCartolaLeagueResponse($teams));
+            ->andReturn(CartolaTestFactory::getCartolaLeagueResponse($teams));
 
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
 
@@ -62,7 +63,7 @@ class RoundResultServiceTest extends TestCase
             ->shouldReceive('getLeagueData')
             ->with($leagueSlug)
             ->once()
-            ->andReturn($this->getCartolaLeagueResponse($teams));
+            ->andReturn(CartolaTestFactory::getCartolaLeagueResponse($teams));
 
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
 
@@ -76,43 +77,20 @@ class RoundResultServiceTest extends TestCase
 
     public function test_must_remove_round_results() : void
     {
-        $round = 2;
-        $leagueSlug = 'cartolas-da-ruindade';
-        $teams = Team::factory()->count(5)->create();
+        $round = 3;
+
+        $factory = new CartolaTestFactory;
         
-        foreach ($teams as $team) {
-            RoundResult::factory([
-                'team_id' => $team->id
-            ])->create();
-        }
+        $season = $factory->configureSeason();
 
+        $factory->registerRoundResult($round, $season->teams()->get());
+         
         $roundResultService = new RoundResultService();
-        $roundResultService
-            ->setCartolaApiService($cartolaApiService)
-            ->remove($round, $leagueSlug);
+        $roundResultService->remove($round, $season->year, $season->league->slug);
             
-        $this->assertDatabaseHas('round_result', ['round' => $round]);
+        $this->assertDatabaseMissing('round_result', ['round' => $round]);
     }
 
 
-    public function getCartolaLeagueResponse($teams) 
-    {
-        $response = ['times' => []];
-
-        foreach ($teams as $i => $team) {
-            $response['times'][] = [
-                'nome' => $team->name,
-                'nome_cartola' => $team->owner,
-                'time_id' => $team->cartola_id,
-                'pontos' => [
-                    'rodada' => (100 - 5 - $i),
-                ],
-                'ranking' => [
-                    'rodada' => $i
-                ]
-            ];
-        }
-
-        return $response;
-    }
+    
 }

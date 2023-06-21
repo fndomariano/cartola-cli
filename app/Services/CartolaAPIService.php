@@ -18,6 +18,6 @@ class CartolaAPIService
 
         } catch (\Exception $e) {
             dd($e->getMessage());
-        }            
+        }
     }
 }
