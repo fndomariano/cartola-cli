@@ -11,19 +11,21 @@ use App\Models\RoundResult;
 
 class SeasonService 
 {
-    public function configure($year, $valueRound, $valueSubscription, $numberExemptPlayersRound) : void
+    private CartolaAPIService $cartolaApiService;
+
+    public function configure(string $leagueSlug, int $seasonYear, float $valueRound, float $valueSubscription, int $numberExemptPlayersRound) : void
     {   
         DB::beginTransaction();
         
         try {
 
-            $data = $this->getLeagueData();
+            $data = $this->getLeagueData($leagueSlug);
 
             $leagueId = $this->createLeague($data['liga']);
             
             $teamsId = $this->createTeams($data['times']);
 
-            $season = $this->createSeason($year, $valueRound, $valueSubscription, $numberExemptPlayersRound, $leagueId, $teamsId);
+            $season = $this->createSeason($seasonYear, $valueRound, $valueSubscription, $numberExemptPlayersRound, $leagueId, $teamsId);
 
             DB::commit();
 
@@ -62,7 +64,12 @@ class SeasonService
 
             dd($e->getMessage());
         }
-        
+    }
+
+    public function setCartolaApiService(CartolaApiService $cartolaApiService) : self
+    {
+        $this->cartolaApiService = $cartolaApiService;
+        return $this;
     }
 
     private function createSeason($year, $valueRound, $valueSubscription, $numberExemptPlayersRound, $leagueId, $teamsId)
@@ -140,13 +147,5 @@ class SeasonService
 
             $ranking++;
         }        
-    }
-
-    private function getLeagueData() 
-    {        
-        $response = Http::withHeaders(['X-GLB-Token' => env('GBLID')])
-            ->get('https://api.cartola.globo.com/auth/liga/cartolas-da-ruindade');
-
-        return $response;
     }
 }

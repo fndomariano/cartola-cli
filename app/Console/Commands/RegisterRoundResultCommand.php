@@ -17,13 +17,15 @@ class RegisterRoundResultCommand extends Command
         try {
             
             $leagueSlug = $this->option('league');
-            $round = $this->option('round');
+            $round = (int) $this->option('round');
 
             $this->validateOptions($leagueSlug, $round);
 
             $service
                 ->setCartolaApiService($cartolaApiService)
                 ->register($round, $leagueSlug);
+
+            $this->info('Round result was registered successfully!');
             
             return RegisterRoundResultCommand::SUCCESS;
 
@@ -35,12 +37,12 @@ class RegisterRoundResultCommand extends Command
         }
     }
 
-    private function validateOptions($leagueSlug, $round) : void
+    private function validateOptions(string $leagueSlug, int $round) : void
     {
-        if ($leagueSlug == '' || $leagueSlug === null)
+        if ($leagueSlug == '' || $leagueSlug == null)
             throw new \InvalidArgumentException("The option --league is required");
 
-        if ($round == '' || $round === null)
+        if ($round == '' || $round == null || $round <= 0)
             throw new \InvalidArgumentException("The option --round is required");
     }
 }

@@ -15,6 +15,19 @@ class RoundResultService
     {
         DB::beginTransaction();
 
+        $roundResults = RoundResult::query()
+            ->select('round_result.id')
+            ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
+            ->join('season', 'season.id', '=', 'subscription.season_id')
+            ->join('league', 'league.id', '=', 'season.league_id')
+            ->where('league.slug', '=', $leagueSlug)
+            ->where('season.year', '=', date('Y'))
+            ->where('round_result.round', '=', $round)
+            ->get();
+
+        if (!$roundResults->isEmpty())
+            throw new \Exception('The round result is already registered');
+        
         try {
         
             $data = $this->cartolaApiService->getLeagueData($leagueSlug);
