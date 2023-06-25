@@ -27,7 +27,7 @@ class SeasonFactory extends Factory
     {
         return [
             'id' => $this->faker->uuid,
-            'year' => 2023,
+            'year' => (int) date('Y'),
             'value_round' => 3,
             'value_subscription' => 30.0,
             'number_exempt_players_round' => 3,

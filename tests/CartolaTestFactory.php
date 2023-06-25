@@ -39,7 +39,7 @@ class CartolaTestFactory
                 'score' => $result['pontos']['rodada'],
                 'ranking' => $result['ranking']['rodada'],
                 'team_id' => $filteredTeam->id
-            ]);
+            ])->create();
         }
     }
 

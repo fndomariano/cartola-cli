@@ -11,22 +11,22 @@ class RoundResultService
 {
     private CartolaAPIService $cartolaApiService;
 
-    public function register($round, $leagueSlug) : void
+    public function register(int $round, string $leagueSlug) : void
     {
-        DB::beginTransaction();
-
         $roundResults = RoundResult::query()
             ->select('round_result.id')
             ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
             ->join('season', 'season.id', '=', 'subscription.season_id')
             ->join('league', 'league.id', '=', 'season.league_id')
             ->where('league.slug', '=', $leagueSlug)
-            ->where('season.year', '=', date('Y'))
+            ->where('season.year', '=', (int) date('Y'))
             ->where('round_result.round', '=', $round)
             ->get();
-
+        
         if (!$roundResults->isEmpty())
             throw new \Exception('The round result is already registered');
+
+        DB::beginTransaction();
         
         try {
         
@@ -54,7 +54,7 @@ class RoundResultService
         }
     }
 
-    public function remove($leagueSlug, $yearSeason, $round) : void
+    public function remove(string $leagueSlug, int $seasonYear, int $round) : void
     {
         $roundResults = RoundResult::query()
             ->select('round_result.id')
@@ -62,7 +62,7 @@ class RoundResultService
             ->join('season', 'season.id', '=', 'subscription.season_id')
             ->join('league', 'league.id', '=', 'season.league_id')
             ->where('league.slug', '=', $leagueSlug)
-            ->where('season.year', '=', $yearSeason)
+            ->where('season.year', '=', $seasonYear)
             ->where('round_result.round', '=', $round)
             ->get();
 
@@ -91,5 +91,4 @@ class RoundResultService
         $this->cartolaApiService = $cartolaApiService;
         return $this;
     }
-    
 }

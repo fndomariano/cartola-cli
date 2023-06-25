@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\CartolaAPIService;
 use App\Services\RoundResultService;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 
 class RegisterRoundResultCommand extends Command
 {    
@@ -16,10 +17,10 @@ class RegisterRoundResultCommand extends Command
     {                        
         try {
             
-            $leagueSlug = $this->option('league');
-            $round = (int) $this->option('round');
-
-            $this->validateOptions($leagueSlug, $round);
+            $leagueSlug = (string) $this->option('league');
+            $round = (int) $this->option('round');            
+            
+            $this->validate($leagueSlug, $round);
 
             $service
                 ->setCartolaApiService($cartolaApiService)
@@ -37,12 +38,17 @@ class RegisterRoundResultCommand extends Command
         }
     }
 
-    private function validateOptions(string $leagueSlug, int $round) : void
+    private function validate(string $leagueSlug, int $round) : void
     {
-        if ($leagueSlug == '' || $leagueSlug == null)
-            throw new \InvalidArgumentException("The option --league is required");
-
-        if ($round == '' || $round == null || $round <= 0)
-            throw new \InvalidArgumentException("The option --round is required");
+        $validator = Validator::make([
+            'league' => $leagueSlug,
+            'round' => $round
+        ], [
+            'league' => 'required',
+            'round'  => 'numeric|min:1|max:38'
+        ]);
+        
+        if ($validator->fails()) 
+            throw new \Exception($validator->errors()->first());
     }
 }

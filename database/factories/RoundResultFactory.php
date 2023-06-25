@@ -27,8 +27,8 @@ class RoundResultFactory extends Factory
         return [
             'id' => $this->faker->uuid,
             'round' => 5,
-            'score' => $faker->randomFloat(2),
-            'ranking' => $faker->randomDigit(),
+            'score' => $this->faker->randomFloat(2),
+            'ranking' => $this->faker->randomDigit(),
             'team_id' => $this->faker->uuid,
         ];
     }

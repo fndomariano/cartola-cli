@@ -15,9 +15,6 @@ class RegisterRoundResultCommandTest extends TestCase
     private const LEAGUE_OPTION = '--league';
     private const ROUND_OPTION = '--round';
 
-    private const EXPECT_LEAGUE_OPTION_OUTPUT = 'The option --league is required';
-    private const EXPECT_ROUND_OPTION_OUTPUT = 'The option --round is required';
-
     public function setUp() : void
     {
         parent::setUp();
@@ -60,44 +57,37 @@ class RegisterRoundResultCommandTest extends TestCase
             self::ROUND_OPTION, $round
         );
 
-        $this->artisan($command)->assertExitCode(RegisterRoundResultCommand::SUCCESS);
+        $this->artisan($command)
+            ->expectsOutput('Round result was registered successfully!')
+            ->assertExitCode(RegisterRoundResultCommand::SUCCESS);
     }
 
-    public function test_that_command_must_validate_league_option_when_null()
+    public function test_that_command_must_validate_league_option_required()
     {
         $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, null);
         
         $this->artisan($command)
-            ->expectsOutput(self::EXPECT_LEAGUE_OPTION_OUTPUT)
+            ->expectsOutput('The league field is required.')
             ->assertExitCode(RegisterRoundResultCommand::INVALID);
         
     }
 
-    public function test_that_command_must_validate_league_option_when_empty()
+    public function test_that_command_must_validate_round_option_min_value()
     {
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, "");
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, 0);
         
         $this->artisan($command)
-            ->expectsOutput(self::EXPECT_LEAGUE_OPTION_OUTPUT)
-            ->assertExitCode(RegisterRoundResultCommand::INVALID);
-    }
-
-    public function test_that_command_must_validate_round_option_when_null()
-    {
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, null);
-        
-        $this->artisan($command)
-            ->expectsOutput(self::EXPECT_ROUND_OPTION_OUTPUT)
+            ->expectsOutput('The round field must be at least 1.')
             ->assertExitCode(RegisterRoundResultCommand::INVALID);        
     }
 
-    public function test_that_command_must_validate_round_option_when_empty()
+    public function test_that_command_must_validate_round_option_max_value()
     {
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, "");
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::ROUND_OPTION, 39);
         
         $this->artisan($command)
-            ->expectsOutput(self::EXPECT_ROUND_OPTION_OUTPUT)
-            ->assertExitCode(RegisterRoundResultCommand::INVALID);
+            ->expectsOutput('The round field must not be greater than 38.')
+            ->assertExitCode(RegisterRoundResultCommand::INVALID);        
     }
     
 }

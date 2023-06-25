@@ -13,19 +13,19 @@ class SeasonService
 {
     private CartolaAPIService $cartolaApiService;
 
-    public function configure(string $leagueSlug, int $seasonYear, float $valueRound, float $valueSubscription, int $numberExemptPlayersRound) : void
+    public function configure(string $leagueSlug, int $seasonYear, float $valueRound, float $subscriptionFee, int $numberExemptPlayersRound) : void
     {   
         DB::beginTransaction();
         
         try {
 
-            $data = $this->getLeagueData($leagueSlug);
+            $data = $this->cartolaApiService->getLeagueData($leagueSlug);
 
             $leagueId = $this->createLeague($data['liga']);
             
             $teamsId = $this->createTeams($data['times']);
 
-            $season = $this->createSeason($seasonYear, $valueRound, $valueSubscription, $numberExemptPlayersRound, $leagueId, $teamsId);
+            $season = $this->createSeason($seasonYear, $valueRound, $subscriptionFee, $numberExemptPlayersRound, $leagueId, $teamsId);
 
             DB::commit();
 
@@ -72,12 +72,12 @@ class SeasonService
         return $this;
     }
 
-    private function createSeason($year, $valueRound, $valueSubscription, $numberExemptPlayersRound, $leagueId, $teamsId)
+    private function createSeason($year, $valueRound, $subscriptionFee, $numberExemptPlayersRound, $leagueId, $teamsId)
     {     
         $season = new Season;
         $season->year = $year;
         $season->value_round = $valueRound;
-        $season->value_subscription = $valueSubscription;
+        $season->value_subscription = $subscriptionFee;
         $season->number_exempt_players_round = $numberExemptPlayersRound;
         $season->league_id = $league->id;
         $season->save();

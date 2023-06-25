@@ -5,10 +5,11 @@ namespace App\Console\Commands;
 use App\Services\RoundResultService;
 use App\Services\CartolaAPIService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
 
 class RemoveRoundResultCommand extends Command
 {    
-    protected $signature = 'round-result:remove {--league=cartolas-da-ruindade} {--yearSeason=} {--round=}';
+    protected $signature = 'round-result:remove {--league=cartolas-da-ruindade} {--seasonYear=} {--round=}';
  
     protected $description = 'Remove teams scores by round';
  
@@ -16,15 +17,15 @@ class RemoveRoundResultCommand extends Command
     {
         try {
 
-            $leagueSlug = $this->option('league');
-            $yearSeason = (int) $this->option('yearSeason');
+            $leagueSlug = (string) $this->option('league');
+            $seasonYear = (int) $this->option('seasonYear');
             $round = (int) $this->option('round');
 
-            $this->validateOptions($leagueSlug, $yearSeason, $round);            
+            $this->validate($leagueSlug, $seasonYear, $round);            
 
             $service
                 ->setCartolaApiService($cartolaApiService)
-                ->remove($leagueSlug, $yearSeason, $round);
+                ->remove($leagueSlug, $seasonYear, $round);
 
             $this->info('Round result was removed successfully!');
 
@@ -38,15 +39,19 @@ class RemoveRoundResultCommand extends Command
         }
     }
 
-    public function validateOptions(string $leagueSlug, int $yearSeason, int $round) : void
+    private function validate(string $leagueSlug, int $seasonYear, int $round) : void
     {
-        if ($leagueSlug === '' || $leagueSlug == null)
-            throw new \InvalidArgumentException("The option --league is required");
-
-        if ($yearSeason == '' || $yearSeason == null || $yearSeason <= 0)
-            throw new \InvalidArgumentException("The option --yearSeason is required");
-
-        if ($round == '' || $round == null || $round <= 0)
-            throw new \InvalidArgumentException("The option --round is required");
+        $validator = Validator::make([
+            'league' => $leagueSlug,
+            'seasonYear' => $seasonYear,
+            'round' => $round
+        ], [
+            'league' => 'required',
+            'seasonYear' => 'numeric|min:1',
+            'round'  => 'numeric|min:1|max:38'
+        ]);
+        
+        if ($validator->fails()) 
+            throw new \Exception($validator->errors()->first());
     }
 }
