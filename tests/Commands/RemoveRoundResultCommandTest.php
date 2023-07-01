@@ -15,8 +15,6 @@ class RemoveRoundResultCommandTest extends TestCase
 
     public function test_that_command_must_remove_round_result() : void
     {
-        $round = 10;
-        
         $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
         
         $roundResultService = Mockery::mock(RoundResultService::class);  

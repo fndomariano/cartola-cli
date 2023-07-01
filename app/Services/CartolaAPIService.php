@@ -19,7 +19,7 @@ class CartolaAPIService
             return $response;
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            throw $e;
         }
     }
 }
