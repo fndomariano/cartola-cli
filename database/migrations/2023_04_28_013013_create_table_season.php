@@ -16,12 +16,7 @@ return new class extends Migration
             $table->year('year');
             $table->decimal('value_round', 6, 2);
             $table->decimal('value_subscription', 6, 2);
-            $table->integer('number_exempt_players_round');
-            $table->uuid('league_id');
-        });
-
-        Schema::table('season', function(Blueprint $table) {
-            $table->foreign('league_id')->references('id')->on('league');
+            $table->integer('number_exempt_players_round');            
         });
     }
 

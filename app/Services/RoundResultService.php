@@ -11,26 +11,22 @@ class RoundResultService
 {
     private CartolaAPIService $cartolaApiService;
 
-    public function register(int $round, string $leagueSlug) : void
+    public function register() : void
     {
-        $roundResults = RoundResult::query()
-            ->select('round_result.id')
-            ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
-            ->join('season', 'season.id', '=', 'subscription.season_id')
-            ->join('league', 'league.id', '=', 'season.league_id')
-            ->where('league.slug', '=', $leagueSlug)
-            ->where('season.year', '=', (int) date('Y'))
-            ->where('round_result.round', '=', $round)
-            ->get();
+        $roundResult = RoundResult::query()
+                ->selectRaw('COALESCE(MAX(round_result.round), 0) AS last_round')
+                ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
+                ->join('season', 'season.id', '=', 'subscription.season_id')
+                ->where('season.year', '=', (int) date('Y'))
+                ->first();
         
-        if (!$roundResults->isEmpty())
-            throw new \Exception('The round result is already registered');
-
+        $round = (int) ($roundResult->last_round + 1);
+        
         DB::beginTransaction();
         
-        try {
-        
-            $data = $this->cartolaApiService->getLeagueData($leagueSlug);
+        try {                    
+                    
+            $data = $this->cartolaApiService->getLeagueData();
             
             foreach ($data['times'] as $result) {
                 
@@ -54,18 +50,29 @@ class RoundResultService
         }
     }
 
-    public function remove(string $leagueSlug, int $seasonYear, int $round) : void
+    public function remove() : void
     {
+        $seasonYear = (int) date('Y');
+            
+        $roundResult = RoundResult::query()
+            ->selectRaw('COALESCE(MAX(round_result.round), 0) AS last_round')
+            ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
+            ->join('season', 'season.id', '=', 'subscription.season_id')
+            ->where('season.year', '=', $seasonYear)
+            ->first();
+    
+        $round = (int) $roundResult->last_round;
+        
         $roundResults = RoundResult::query()
             ->select('round_result.id')
             ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
             ->join('season', 'season.id', '=', 'subscription.season_id')
-            ->join('league', 'league.id', '=', 'season.league_id')
-            ->where('league.slug', '=', $leagueSlug)
             ->where('season.year', '=', $seasonYear)
             ->where('round_result.round', '=', $round)
             ->get();
 
+        if ($roundResults->isEmpty()) 
+            throw new \Exception('The round results were not found');
 
         DB::beginTransaction();
 
@@ -83,7 +90,6 @@ class RoundResultService
 
             throw $e;
         }
-
     }
 
     public function setCartolaApiService(CartolaApiService $cartolaApiService) : self

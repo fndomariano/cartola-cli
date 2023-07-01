@@ -6,13 +6,15 @@ use Illuminate\Support\Facades\Http;
 
 class CartolaAPIService 
 {
-    const CARTOLA_URL_AUTH_LEAGUE = 'https://api.cartola.globo.com/auth/liga/';
+    const CARTOLA_BASE_URL = 'https://api.cartola.globo.com';
 
-    public function getLeagueData($leagueSlug)
+    public function getLeagueData()
     {        
         try {
-            $response = Http::withHeaders(['X-GLB-Token' => env('GBLID')])
-                ->get(self::CARTOLA_URL_AUTH_LEAGUE . $leagueSlug);
+
+            $endpoint = self::CARTOLA_BASE_URL . '/auth/liga/cartolas-da-ruindade';
+
+            $response = Http::withHeaders(['X-GLB-Token' => env('GBLID')])->get($endpoint);
 
             return $response;
 

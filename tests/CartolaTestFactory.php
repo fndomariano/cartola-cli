@@ -12,9 +12,7 @@ class CartolaTestFactory
 {
     public function configureSeason() : Season
     {        
-        $league = League::factory()->create();
-        
-        $season = Season::factory(['league_id' => $league->id])->create();
+        $season = Season::factory()->create();
         
         $teams = Team::factory()->count(5)->create();
         $teamsId = $teams->pluck('id')->toArray();

@@ -31,7 +31,6 @@ class SeasonFactory extends Factory
             'value_round' => 3,
             'value_subscription' => 30.0,
             'number_exempt_players_round' => 3,
-            'league_id' => $this->faker->uuid
         ];
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RemoveRoundResultCommand extends Command
 {    
-    protected $signature = 'round-result:remove {--league=cartolas-da-ruindade} {--seasonYear=} {--round=}';
+    protected $signature = 'round-result:remove';
  
     protected $description = 'Remove teams scores by round';
  
@@ -17,17 +17,11 @@ class RemoveRoundResultCommand extends Command
     {
         try {
 
-            $leagueSlug = (string) $this->option('league');
-            $seasonYear = (int) $this->option('seasonYear');
-            $round = (int) $this->option('round');
-
-            $this->validate($leagueSlug, $seasonYear, $round);            
-
             $service
                 ->setCartolaApiService($cartolaApiService)
-                ->remove($leagueSlug, $seasonYear, $round);
+                ->remove();
 
-            $this->info('Round result was removed successfully!');
+            $this->info('Round results were removed successfully!');
 
             return RemoveRoundResultCommand::SUCCESS;
 
@@ -37,21 +31,5 @@ class RemoveRoundResultCommand extends Command
 
             return RegisterRoundResultCommand::INVALID;
         }
-    }
-
-    private function validate(string $leagueSlug, int $seasonYear, int $round) : void
-    {
-        $validator = Validator::make([
-            'league' => $leagueSlug,
-            'seasonYear' => $seasonYear,
-            'round' => $round
-        ], [
-            'league' => 'required',
-            'seasonYear' => 'numeric|min:1',
-            'round'  => 'numeric|min:1|max:38'
-        ]);
-        
-        if ($validator->fails()) 
-            throw new \Exception($validator->errors()->first());
     }
 }

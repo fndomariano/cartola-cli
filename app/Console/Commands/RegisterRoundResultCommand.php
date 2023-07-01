@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterRoundResultCommand extends Command
 {    
-    protected $signature = 'round-result:register {--league=cartolas-da-ruindade} {--round=}';
+    protected $signature = 'round-result:register';
  
     protected $description = 'Insert teams scores by round';
  
@@ -17,16 +17,11 @@ class RegisterRoundResultCommand extends Command
     {                        
         try {
             
-            $leagueSlug = (string) $this->option('league');
-            $round = (int) $this->option('round');            
-            
-            $this->validate($leagueSlug, $round);
-
-            $service
+           $service
                 ->setCartolaApiService($cartolaApiService)
-                ->register($round, $leagueSlug);
+                ->register();
 
-            $this->info('Round result was registered successfully!');
+            $this->info('Round results were registered successfully!');
             
             return RegisterRoundResultCommand::SUCCESS;
 
@@ -36,19 +31,5 @@ class RegisterRoundResultCommand extends Command
 
             return RegisterRoundResultCommand::INVALID;            
         }
-    }
-
-    private function validate(string $leagueSlug, int $round) : void
-    {
-        $validator = Validator::make([
-            'league' => $leagueSlug,
-            'round' => $round
-        ], [
-            'league' => 'required',
-            'round'  => 'numeric|min:1|max:38'
-        ]);
-        
-        if ($validator->fails()) 
-            throw new \Exception($validator->errors()->first());
     }
 }

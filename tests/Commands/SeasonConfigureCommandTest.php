@@ -13,14 +13,10 @@ class SeasonConfigureCommandTest extends TestCase
 {
     private const COMMAND_NAME = 'season:configure';
 
-    private const LEAGUE_OPTION = '--league';
-    private const SEASON_YEAR_OPTION = '--seasonYear';
     private const ROUND_VALUE_OPTION = '--roundValue';
     private const SUBSCRIPTION_FEE_OPTION = '--subscriptionFee';
     private const NUMBER_EXEMPT_PLAYERS_OPTION = '--numberExemptPlayersRound';
 
-    private string $leagueSlug = 'cartolas-da-ruindade';
-    private int $seasonYear = 2023;
     private float $valueRound = 3;
     private float $subscriptionFee = 30;
     private int $numberExemptPlayersRound = 3;
@@ -39,42 +35,21 @@ class SeasonConfigureCommandTest extends TestCase
         
         $seasonService
             ->shouldReceive('configure')
-            ->with($this->leagueSlug, $this->seasonYear, $this->valueRound, $this->subscriptionFee, $this->numberExemptPlayersRound)
+            ->with($this->valueRound, $this->subscriptionFee, $this->numberExemptPlayersRound)
             ->once()
             ->andReturnNull();            
         
         $this->app->instance(CartolaAPIService::class, $cartolaApiService);
         $this->app->instance(SeasonService::class, $seasonService);
 
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::SEASON_YEAR_OPTION, 2023);
-        
-        $this->artisan($command)
+        $this->artisan(self::COMMAND_NAME)
             ->expectsOutput('Season was configured successfully!')
             ->assertExitCode(SeasonConfigureCommand::SUCCESS);
     }
 
-    public function test_that_command_must_validate_league_option_required()
-    {        
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::LEAGUE_OPTION, null);
-
-        $this->artisan($command)
-            ->expectsOutput('The league field is required.')
-            ->assertExitCode(SeasonConfigureCommand::INVALID);
-    }
-
-    public function test_that_command_must_validate_season_year_required()
-    {        
-        $command = sprintf("%s %s=%s", self::COMMAND_NAME, self::SEASON_YEAR_OPTION, null);
-
-        $this->artisan($command)
-            ->expectsOutput('The season year field must be at least 1.')
-            ->assertExitCode(SeasonConfigureCommand::INVALID);
-    }
-
     public function test_that_command_must_validate_round_value_required()
     {        
-        $command = sprintf("%s %s=%s %s=%s", self::COMMAND_NAME, 
-            self::SEASON_YEAR_OPTION, $this->seasonYear,
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, 
             self::ROUND_VALUE_OPTION, null
         );
 
@@ -85,8 +60,7 @@ class SeasonConfigureCommandTest extends TestCase
 
     public function test_that_command_must_validate_subscription_fee_required()
     {        
-        $command = sprintf("%s %s=%s %s=%s", self::COMMAND_NAME, 
-            self::SEASON_YEAR_OPTION, $this->seasonYear,
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, 
             self::SUBSCRIPTION_FEE_OPTION, null
         );
 
@@ -97,8 +71,7 @@ class SeasonConfigureCommandTest extends TestCase
 
     public function test_that_command_must_validate_number_exempt_players_required()
     {        
-        $command = sprintf("%s %s=%s %s=%s", self::COMMAND_NAME, 
-            self::SEASON_YEAR_OPTION, $this->seasonYear,
+        $command = sprintf("%s %s=%s", self::COMMAND_NAME, 
             self::NUMBER_EXEMPT_PLAYERS_OPTION, null
         );
 

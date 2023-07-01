@@ -34,9 +34,4 @@ class Season extends Model
     {
         return $this->belongsToMany(Team::class, 'subscription');
     }
-
-    public function league(): HasOne
-    {
-        return $this->hasOne(League::class, 'id', 'league_id');
-    }
 }

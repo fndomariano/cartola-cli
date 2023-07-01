@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use App\Models\League;
 use App\Models\Team;
 use App\Models\Season;
 use App\Models\RoundResult;
@@ -13,19 +12,17 @@ class SeasonService
 {
     private CartolaAPIService $cartolaApiService;
 
-    public function configure(string $leagueSlug, int $seasonYear, float $valueRound, float $subscriptionFee, int $numberExemptPlayersRound) : void
+    public function configure(float $valueRound, float $subscriptionFee, int $numberExemptPlayersRound) : void
     {   
         DB::beginTransaction();
         
         try {
 
-            $data = $this->cartolaApiService->getLeagueData($leagueSlug);
-
-            $leagueId = $this->createLeague($data['liga']);
-            
+            $data = $this->cartolaApiService->getLeagueData();
+                        
             $teamsId = $this->createTeams($data['times']);
 
-            $season = $this->createSeason($seasonYear, $valueRound, $subscriptionFee, $numberExemptPlayersRound, $leagueId, $teamsId);
+            $season = $this->createSeason($valueRound, $subscriptionFee, $numberExemptPlayersRound, $teamsId);
 
             DB::commit();
 
@@ -33,22 +30,18 @@ class SeasonService
             
             DB::rollBack();
 
-            dd($e->getMessage());
+            throw $e;
         }      
     }
 
-    public function updateSubscriptions(string $leagueSlug, int $seasonYear) : void
+    public function updateSubscriptions() : void
     {
         DB::beginTransaction();
 
         try {
             $data = $this->getLeagueData();
 
-            $league = League::where('slug', '=', $leagueSlug)->firstOrFail();
-
-            $season = Season::where('league_id', '=', $league->id)
-                ->where('year', '=', $seasonYear)
-                ->firstOrFail();
+            $season = Season::where('year', '=', (int) date('Y'))->firstOrFail();
                             
             $teamsId = $this->createTeams($data['times']);
 
@@ -62,7 +55,7 @@ class SeasonService
 
             DB::rollBack();
 
-            dd($e->getMessage());
+            throw $e;
         }
     }
 
@@ -72,28 +65,16 @@ class SeasonService
         return $this;
     }
 
-    private function createSeason($year, $valueRound, $subscriptionFee, $numberExemptPlayersRound, $leagueId, $teamsId)
+    private function createSeason($valueRound, $subscriptionFee, $numberExemptPlayersRound, $teamsId)
     {     
         $season = new Season;
-        $season->year = $year;
+        $season->year = (int) date('Y');
         $season->value_round = $valueRound;
         $season->value_subscription = $subscriptionFee;
         $season->number_exempt_players_round = $numberExemptPlayersRound;
-        $season->league_id = $league->id;
         $season->save();
 
         $season->teams()->attach($teamsId);
-    }
-
-    private function createLeague($data) 
-    {
-        $league = new League;
-        $league->name = $data['nome'];
-        $league->slug = $data['slug'];
-        $league->cartola_id = $data['liga_id'];
-        $league->save();
-
-        return $league->id;
     }
 
     private function createTeams($teams)

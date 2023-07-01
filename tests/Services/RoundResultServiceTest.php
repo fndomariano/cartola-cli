@@ -29,14 +29,10 @@ class RoundResultServiceTest extends TestCase
     {
         $teams = Team::factory()->count(5)->create();
 
-        $round = 2;
-        $leagueSlug = 'cartolas-da-ruindade';
-
         $cartolaApiService = Mockery::mock(CartolaAPIService::class);  
 
         $cartolaApiService
             ->shouldReceive('getLeagueData')
-            ->with($leagueSlug)
             ->once()
             ->andReturn(CartolaTestFactory::getCartolaLeagueResponse($teams));
 
@@ -45,22 +41,19 @@ class RoundResultServiceTest extends TestCase
         $roundResultService = new RoundResultService();
         $roundResultService
             ->setCartolaApiService($cartolaApiService)
-            ->register($round, $leagueSlug);
+            ->register();
             
-        $this->assertDatabaseHas('round_result', ['round' => $round]);        
+        $this->assertDatabaseHas('round_result', ['round' => 1]);        
     }
 
     public function test_must_throw_not_found_exception() : void
     {
-        $teams = Team::factory()->count(3)->make();
-        $round = 2;
-        $leagueSlug = 'cartolas-da-ruindade';
+        $teams = Team::factory()->count(3)->make();        
 
         $cartolaApiService = Mockery::mock(CartolaAPIService::class);  
 
         $cartolaApiService
             ->shouldReceive('getLeagueData')
-            ->with($leagueSlug)
             ->once()
             ->andReturn(CartolaTestFactory::getCartolaLeagueResponse($teams));
 
@@ -71,31 +64,7 @@ class RoundResultServiceTest extends TestCase
         $roundResultService = new RoundResultService();
         $roundResultService
             ->setCartolaApiService($cartolaApiService)
-            ->register($round, $leagueSlug);
-    }
-
-    public function test_must_throw_exception_when_rounds_already_exists() : void
-    {
-        $round = 10;
-        
-        $factory = new CartolaTestFactory;
-        $season = $factory->configureSeason();
-        $teams = $season->teams()->get();
-        $leagueSlug = $season->league->slug; 
-        $factory->registerRoundResult($round, $teams);
-        
-        $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
-        $this->app->instance(CartolaAPIService::class, $cartolaApiService); 
-        
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('The round result is already registered');
-
-        $roundResultService = new RoundResultService();
-        $roundResultService
-            ->setCartolaApiService($cartolaApiService)
-            ->register($round, $leagueSlug);
-            
-        $this->assertDatabaseHas('round_result', ['round' => $round]);
+            ->register();
     }
 
     public function test_must_remove_round_results() : void
@@ -106,7 +75,7 @@ class RoundResultServiceTest extends TestCase
         $factory->registerRoundResult($round, $season->teams()->get());
          
         $roundResultService = new RoundResultService();
-        $roundResultService->remove($season->league->slug, $season->year, $round);
+        $roundResultService->remove();
             
         $this->assertDatabaseMissing('round_result', ['round' => $round]);
     }
