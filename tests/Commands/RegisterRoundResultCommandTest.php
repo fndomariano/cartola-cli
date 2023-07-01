@@ -13,16 +13,6 @@ class RegisterRoundResultCommandTest extends TestCase
 {     
     private const COMMAND_NAME = 'round-result:register';
 
-    public function setUp() : void
-    {
-        parent::setUp();
-    }
-
-    public function tearDown() : void
-    {
-        parent::tearDown();
-    }
-
     public function test_that_command_must_register_round_result() : void
     {
         $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
@@ -47,5 +37,30 @@ class RegisterRoundResultCommandTest extends TestCase
         $this->artisan(self::COMMAND_NAME)
             ->expectsOutput('Round results were registered successfully!')
             ->assertExitCode(RegisterRoundResultCommand::SUCCESS);
-    }    
+    }
+
+    public function test_that_command_must_throw_exception() : void
+    {
+        $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
+        
+        $roundResultService = Mockery::mock(RoundResultService::class);  
+
+        $roundResultService
+            ->shouldReceive('setCartolaApiService')
+            ->with($cartolaApiService)
+            ->once()
+            ->andReturnSelf();
+        
+        $roundResultService
+            ->shouldReceive('register')
+            ->once()
+            ->andThrow(\Exception::class);
+        
+            
+        $this->app->instance(CartolaAPIService::class, $cartolaApiService);
+        $this->app->instance(RoundResultService::class, $roundResultService);
+            
+        $this->artisan(self::COMMAND_NAME)
+            ->assertExitCode(RegisterRoundResultCommand::INVALID);
+    }
 }

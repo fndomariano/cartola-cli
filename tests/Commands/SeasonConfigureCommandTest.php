@@ -3,7 +3,6 @@
 namespace Tests\Commands;
 
 use App\Console\Commands\SeasonConfigureCommand;
-use App\Models\RoundResult;
 use App\Services\SeasonService;
 use App\Services\CartolaAPIService;
 use Mockery;
@@ -45,6 +44,31 @@ class SeasonConfigureCommandTest extends TestCase
         $this->artisan(self::COMMAND_NAME)
             ->expectsOutput('Season was configured successfully!')
             ->assertExitCode(SeasonConfigureCommand::SUCCESS);
+    }
+
+    public function test_that_command_must_throw_exception() : void
+    {
+        $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
+        
+        $roundResultService = Mockery::mock(SeasonService::class);  
+
+        $roundResultService
+            ->shouldReceive('setCartolaApiService')
+            ->with($cartolaApiService)
+            ->once()
+            ->andReturnSelf();
+        
+        $roundResultService
+            ->shouldReceive('configure')
+            ->once()
+            ->andThrow(\Exception::class);
+        
+            
+        $this->app->instance(CartolaAPIService::class, $cartolaApiService);
+        $this->app->instance(SeasonService::class, $roundResultService);
+            
+        $this->artisan(self::COMMAND_NAME)
+            ->assertExitCode(SeasonConfigureCommand::INVALID);
     }
 
     public function test_that_command_must_validate_round_value_required()

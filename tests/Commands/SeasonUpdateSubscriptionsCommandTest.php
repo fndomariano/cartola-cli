@@ -37,4 +37,29 @@ class SeasonUpdateSubscriptionsCommandTest extends TestCase
             ->expectsOutput('Season subscriptions have been updated successfully!')
             ->assertExitCode(SeasonUpdateSubscriptionsCommand::SUCCESS);
     }
+
+    public function test_that_command_must_throw_exception() : void
+    {
+        $cartolaApiService = Mockery::mock(CartolaAPIService::class)->makePartial();
+        
+        $roundResultService = Mockery::mock(SeasonService::class);  
+
+        $roundResultService
+            ->shouldReceive('setCartolaApiService')
+            ->with($cartolaApiService)
+            ->once()
+            ->andReturnSelf();
+        
+        $roundResultService
+            ->shouldReceive('updateSubscriptions')
+            ->once()
+            ->andThrow(\Exception::class);
+        
+            
+        $this->app->instance(CartolaAPIService::class, $cartolaApiService);
+        $this->app->instance(SeasonService::class, $roundResultService);
+            
+        $this->artisan(self::COMMAND_NAME)
+            ->assertExitCode(SeasonUpdateSubscriptionsCommand::INVALID);
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use App\Models\League;
 use App\Models\Season;
 use App\Models\RoundResult;
 use App\Models\Team;
