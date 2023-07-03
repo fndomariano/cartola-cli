@@ -23,7 +23,7 @@ class CartolaTestFactory
 
     public function registerRoundResult($round, $teams)
     {
-        $response = self::getCartolaLeagueResponse($teams);
+        $response = self::getLeagueResponse($teams);
         
         foreach ($response['times'] as $result) {
         
@@ -40,7 +40,7 @@ class CartolaTestFactory
         }
     }
 
-    public static function getCartolaLeagueResponse($teams) 
+    public static function getLeagueResponse($teams) 
     {
         $response = ['times' => []];
         
@@ -62,4 +62,12 @@ class CartolaTestFactory
         return $response;
     }
 
+
+    public static function getMarketStatusResponse(bool $isOpen = true) 
+    {
+        return [
+            'rodada_atual' => 10,
+            'status_mercado' => $isOpen ? 1 : 2
+        ];            
+    }
 }

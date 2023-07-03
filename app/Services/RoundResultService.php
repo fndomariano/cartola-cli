@@ -13,22 +13,31 @@ class RoundResultService
 
     public function register() : void
     {
-        $roundResult = RoundResult::query()
-                ->selectRaw('COALESCE(MAX(round_result.round), 0) AS last_round')
-                ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
-                ->join('season', 'season.id', '=', 'subscription.season_id')
-                ->where('season.year', '=', (int) date('Y'))
-                ->first();
-        
-        $round = (int) ($roundResult->last_round + 1);
-        
+        $market = $this->cartolaApiService->getMarketStatus();
+
+        if ($market['status_mercado'] != CartolaAPIService::MARKET_STATUS_OPENED)
+            return;
+
+        $round = $market['rodada_atual'] - 1;
+
+        $roundResults = RoundResult::query()
+            ->select('round_result.id')
+            ->join('subscription', 'subscription.team_id', '=', 'round_result.team_id')
+            ->join('season', 'season.id', '=', 'subscription.season_id')
+            ->where('season.year', '=', (int) date('Y'))
+            ->where('round_result.round', '=', $round)
+            ->get();
+                
+        if (!$roundResults->isEmpty())
+            throw new \Exception(sprintf('The round result %s has been registered already', $round));
+
         DB::beginTransaction();
         
         try {                    
                     
-            $data = $this->cartolaApiService->getLeagueData();
+            $league = $this->cartolaApiService->getLeagueData();
             
-            foreach ($data['times'] as $result) {
+            foreach ($league['times'] as $result) {
                 
                 $team = Team::where('cartola_id', '=', $result['time_id'])->firstOrFail();
                 
@@ -72,23 +81,10 @@ class RoundResultService
             ->get();
 
         if ($roundResults->isEmpty()) 
-            throw new \Exception('The round results were not found');
+            throw new \Exception(sprintf('No results were found to round %s', $round));
 
-        DB::beginTransaction();
-
-        try {
-
-            foreach ($roundResults as $roundResult) {
-                $roundResult->delete();
-            }
-
-            DB::commit();
-
-        } catch (\Exception $e) {
-            
-            DB::rollBack();
-
-            throw $e;
+        foreach ($roundResults as $roundResult) {
+            $roundResult->delete();
         }
     }
 

@@ -8,3 +8,4 @@ composer.lock
 /coverage
 .phpunit.result.cache/
 .phpunit.cache/
+/tests/reports
