@@ -54,7 +54,7 @@ class CartolaTestFactory
                     'rodada' => (100 - 5 - $i),
                 ],
                 'ranking' => [
-                    'rodada' => $i
+                    'rodada' => ($i+1)
                 ]
             ];
         }

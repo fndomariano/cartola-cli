@@ -24,7 +24,7 @@ class TeamFactory extends Factory
         return [
             'id' => $this->faker->uuid,
             'name' => $this->faker->userName,
-            'cartola_id' => $this->faker->randomDigit,
+            'cartola_id' => $this->faker->unique()->randomDigit,
             'owner' => $this->faker->name,
         ];
     }

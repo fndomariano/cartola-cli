@@ -111,7 +111,7 @@ class RoundResultServiceTest extends TestCase
 
     public function test_must_throw_not_found_exception() : void
     {
-        $teams = Team::factory()->count(3)->make();        
+        $teams = Team::factory()->count(3)->make();
 
         $cartolaApiService = Mockery::mock(CartolaAPIService::class);  
 
