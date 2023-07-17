@@ -11,7 +11,7 @@ class SeasonUpdateSubscriptionsCommand extends Command
 {    
     protected $signature = 'season:update-subscriptions';
  
-    protected $description = 'Add and remove subscribed teams';
+    protected $description = 'Add new teams to the current season';
  
     public function handle(CartolaAPIService $cartolaApiService, SeasonService $service): int
     {

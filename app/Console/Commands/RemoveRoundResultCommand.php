@@ -11,7 +11,7 @@ class RemoveRoundResultCommand extends Command
 {    
     protected $signature = 'round-result:remove';
  
-    protected $description = 'Remove teams scores by round';
+    protected $description = 'Remove score of the last round';
  
     public function handle(CartolaAPIService $cartolaApiService, RoundResultService $service) : int
     {
